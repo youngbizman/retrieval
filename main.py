@@ -17,7 +17,7 @@ def main():
     sentences = sent_tokenize(normalized)
     # for sentence in sentences:
     #     if sentence.startswith('مواد لازم'):
-    #
+
 
 
 
