@@ -8,61 +8,63 @@ import pandas as pd
 import codecs
 
 def find_word(list, word):
+    result = []
     for i in range(len(list)):
-        if list[i][0].startswith(word):
-            return i
+        if list[i].startswith(word):
+            result.append(i)
+    return result
 
+
+def find_next(list, m):
+    try:
+        first_value = next(val for val in list if val > m)
+    except StopIteration:
+        first_value = None
+    return first_value
 
 
 def main():
     file = open("input.txt", "r", encoding='utf-8')
     file_contents = file.read()
+    sentencess = file_contents.split('\n')
+    file.close()
+
 
     normalizer = Normalizer()
-    normalized = normalizer.normalize(file_contents)
-    sentences = sent_tokenize(normalized)
-    sentencess = []
-    for sentence in sentences:
-        sentencess.append(sentence.split('\n'))
-
-
-    i = find_word(sentencess, 'مواد لازم')
-    j = find_word(sentencess[i:], 'طرز تهیه')
-    # for t in range(i+1, j):
-    #     sentencess[t].find
-    # print(sentencess[i+1:j])
-    # print(*sentencess[j+1:])
     separators = [normalizer.normalize(x.strip()) for x in codecs.open('separators.txt', 'r', 'utf-8').readlines()]
-    print(separators)
-    num = ['۱', '۲', '۳','۴','۵','۶','۷','۸','۹']
-    for t in range(i+1, j):
+    preparators = [normalizer.normalize(x.strip()) for x in codecs.open('preparation.txt', 'r', 'utf-8').readlines()]
 
-        z = len(sentencess[t][0])
-        if sentencess[t][0][0] in num:
-            sentencess[t][0]= sentencess[t][0].split(maxsplit=1)[1]
-        # if sentencess[t][0].startswith():
+    l1 = find_word(sentencess, 'مواد لازم')
+    l2 = []
+    for preparator in preparators:
+        l2 += find_word(sentencess, preparator)
 
-        # z = 0
-        for separator in separators:
-            curr_index = sentencess[t][0].find(separator)
-            # z = max(z, curr_index)
-
-            if curr_index != -1 and curr_index < z:
-                z = curr_index
+    l3 = l1 + l2
+    for i in l2:
+        next = find_next(l3, i)
+        print(sentencess[i: next])
 
 
+    num = ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
 
-        print(sentencess[t][0][:z])
-        print(sentencess[t][0][z:])
+    for j in l1:
+        next = find_next(l3, j)
+        # print(sentencess[j+1:next])
 
+        for t in range(j+1, next):
 
+            z = len(sentencess[t])
+            if sentencess[t] in num:
+                sentencess[t] = sentencess[t].split(maxsplit=1)[1]
 
-    # for sentence in sentences:
-    #     if sentence.startswith('مواد لازم'):
+            for separator in separators:
+                curr_index = sentencess[t].find(separator)
 
+                if curr_index != -1 and curr_index < z:
+                    z = curr_index
 
-
-
+            print(sentencess[t][:z])
+            print(sentencess[t][z:])
 
 
 if __name__ == '__main__':
