@@ -7,10 +7,19 @@ import nltk
 import pandas as pd
 import codecs
 
+
 def find_word(list, word):
     result = []
     for i in range(len(list)):
+        if list[i].find(word) != -1 and len(list[i]) < 40:
+            result.append(i)
+    return result
+
+def find_word2(list, word):
+    result = []
+    for i in range(len(list)):
         if list[i].startswith(word):
+            # list[i].replace(word, "")
             result.append(i)
     return result
 
@@ -37,7 +46,7 @@ def main():
     l1 = find_word(sentencess, 'مواد لازم')
     l2 = []
     for preparator in preparators:
-        l2 += find_word(sentencess, preparator)
+        l2 += find_word2(sentencess, preparator)
 
     l3 = l1 + l2
     for i in l2:
