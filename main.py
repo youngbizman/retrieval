@@ -6,6 +6,7 @@ import re
 
 
 def find_word(list, word):
+    '''for finding ingredients.txt string'''
     result = []
     for i in range(len(list)):
         if list[i].find(word) != -1 and len(list[i]) < 40:
@@ -14,6 +15,7 @@ def find_word(list, word):
 
 
 def find_word2(list, word):
+    '''for finding recipe string'''
     result = []
     for i in range(len(list)):
         if list[i].startswith(word):
@@ -24,10 +26,9 @@ def find_word2(list, word):
 
 def find_next(list, m):
     try:
-        first_value = next(val for val in list if val > m)
+        return next(val for val in list if val > m)
     except StopIteration:
-        first_value = None
-    return first_value
+        return None
 
 
 def set_default(sentencess):
@@ -40,6 +41,12 @@ def set_default(sentencess):
         return []
     else:
         return i
+
+# def is_char(c):
+#     'check a charecter is persion or not'
+#     if c in 'اآبپتسجچهخدذرزسشصضطظعغفقکلمنوهیي':
+#         return True
+#     return False
 
 
 def main():
@@ -55,21 +62,35 @@ def main():
     start = timeit.default_timer()
 
     normalizer = Normalizer()
+
     separators = [normalizer.normalize(x.strip()) for x in codecs.open('separators.txt', 'r', 'utf-8').readlines()]
     preparators = [normalizer.normalize(x.strip()) for x in codecs.open('preparation.txt', 'r', 'utf-8').readlines()]
+    ingredient_start = [normalizer.normalize(x.strip()) for x in codecs.open('ingredients.txt', 'r', 'utf-8').readlines()]
 
-    l1 = find_word(sentencess, 'مواد لازم')
+    '''مواد لازم  از ایندکس چندم شروع می شن '''
+    l1 = []
+    for i in ingredient_start:
+        l1 += find_word2(sentencess, i)
+
+    '''طرز تهیه ها از ایندکس چندم شروع می شن '''
     l2 = []
     for preparator in preparators:
         l2 += find_word2(sentencess, preparator)
 
     if len(l2) == 0:
+        '''حالت پیش فرض'''
         l2.append(set_default(sentencess))
 
     l3 = l1 + l2
+    l3.sort()
     for i in l2:
         next = find_next(l3, i)
 
+        if len(sentencess[i]) < 40:
+            i = i+1
+        else:
+            sentencess[i] = re.sub(r'^.+:', '', sentencess[i])
+        print('jnsk',sentencess[i])
         recipe = "\n".join(sentencess[i: next])
         loc = file_contents.index(recipe)
         result["span_recipie"].append([loc, loc + len(recipe)])
@@ -77,9 +98,10 @@ def main():
         result["recipie"].append(recipe.replace("\n", ""))
 
     num = ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-
+    print(l1, l2, l3)
     for j in l1:
         next = find_next(l3, j)
+        print(j, next)
 
         for t in range(j + 1, next):
 
@@ -93,6 +115,7 @@ def main():
             for separator in separators:
                 curr_index = sentencess[t].find(separator)
                 '''اگر اشتباهی مچ کرده بود(مثلا دو در دوغ رو)'''
+                # if is_char(sentencess[t][curr_index-1]) or is_char(sentencess[t][curr_index+1]):
                 if sentencess[t][curr_index-1] != ' ' and sentencess[t][curr_index+1] != ' ':
                     continue
 
