@@ -48,24 +48,18 @@ def set_default(sentencess):
 #         return True
 #     return False
 
-
-def main():
-    file = open("input.txt", "r", encoding='utf-8')
-    file_contents = file.read()
-
-    sentencess = file_contents.split('\n')
-    # "to remove empty lines"
-    # sentencess = list(filter(None, sentencess))
-    file.close()
-
-    result = {"ingredients": [], "quantity": [], "recipie": [], "span_ingredients": [], "span_recipie": []}
-    start = timeit.default_timer()
+def run(input:str):
 
     normalizer = Normalizer()
-
     separators = [normalizer.normalize(x.strip()) for x in codecs.open('separators.txt', 'r', 'utf-8').readlines()]
     preparators = [normalizer.normalize(x.strip()) for x in codecs.open('preparation.txt', 'r', 'utf-8').readlines()]
-    ingredient_start = [normalizer.normalize(x.strip()) for x in codecs.open('ingredients.txt', 'r', 'utf-8').readlines()]
+    ingredient_start = [normalizer.normalize(x.strip()) for x in
+                        codecs.open('ingredients.txt', 'r', 'utf-8').readlines()]
+
+    start = timeit.default_timer()
+
+    sentencess = input.split('\n')
+    result = {"ingredients": [], "quantity": [], "recipie": [], "span_ingredients": [], "span_recipie": []}
 
     '''مواد لازم  از ایندکس چندم شروع می شن '''
     l1 = []
@@ -87,21 +81,20 @@ def main():
         next = find_next(l3, i)
 
         if len(sentencess[i]) < 40:
-            i = i+1
+            i = i + 1
         else:
             sentencess[i] = re.sub(r'^.+:', '', sentencess[i])
-        print('jnsk',sentencess[i])
+
         recipe = "\n".join(sentencess[i: next])
-        loc = file_contents.index(recipe)
+        loc = input.index(recipe)
         result["span_recipie"].append([loc, loc + len(recipe)])
 
         result["recipie"].append(recipe.replace("\n", ""))
 
     num = ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-    print(l1, l2, l3)
+
     for j in l1:
         next = find_next(l3, j)
-        print(j, next)
 
         for t in range(j + 1, next):
 
@@ -116,13 +109,13 @@ def main():
                 curr_index = sentencess[t].find(separator)
                 '''اگر اشتباهی مچ کرده بود(مثلا دو در دوغ رو)'''
                 # if is_char(sentencess[t][curr_index-1]) or is_char(sentencess[t][curr_index+1]):
-                if sentencess[t][curr_index-1] != ' ' and sentencess[t][curr_index+1] != ' ':
+                if sentencess[t][curr_index - 1] != ' ' and sentencess[t][curr_index + 1] != ' ':
                     continue
 
                 if curr_index != -1 and curr_index < z:
                     z = curr_index
 
-            loc = file_contents.index(sentencess[t])
+            loc = input.index(sentencess[t])
             result["span_ingredients"].append([loc, loc + len(sentencess[t])])
 
             result["ingredients"].append(re.sub(r'^[\W_]+|[\W_]+$', '', sentencess[t][:z]))
@@ -130,7 +123,15 @@ def main():
 
     stop = timeit.default_timer()
     result["time"] = stop - start
-    print(result)
+    return result
+
+
+
+def main():
+    file = open("input.txt", "r", encoding='utf-8')
+    file_contents = file.read()
+    file.close()
+    print(run(file_contents))
 
 
 if __name__ == '__main__':
